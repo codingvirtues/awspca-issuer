@@ -24,8 +24,9 @@ Clone this repo and perform following steps to install controller:
 
 Create resource AWSPCAIssuer for the above controller:
 
-# cat issuer.yaml
 ```
+# cat issuer.yaml
+
 apiVersion: certmanager.awspca/v1alpha2
 kind: AWSPCAIssuer
 metadata:
@@ -39,11 +40,11 @@ spec:
     arn: <ARN of AWS Private CA>
 ```
 
+```
 # kubectl apply -f issuer.yaml
 
 # kubectl describe AWSPCAIssuer -n awspca-issuer-system
 
-```
 Name:         awspca-issuer
 Namespace:    awspca-issuer-system
 Labels:       <none>
@@ -65,8 +66,9 @@ Events:
 
 Now create certificate:
 
-# cat certificate.yaml
 ```
+# cat certificate.yaml
+
 apiVersion: cert-manager.io/v1alpha2
 kind: Certificate
 metadata:
@@ -96,10 +98,10 @@ spec:
     name: awspca-issuer
 ```
 
+```
 # kubectl apply -f certificate.yaml
 # kubectl describe Certificate backend-awspca -n awspca-issuer-system
 
-```
 Name:         backend-awspca
 Namespace:    awspca-issuer-system
 Labels:       <none>
@@ -136,11 +138,11 @@ Events:
   Normal  Issued        18m   cert-manager  Certificate issued successfully
 ```
 
-Check certificate and private key are present in secrets:
-
-# kubectl describe secrets backend-awspca-tls -n awspca-issuer-system                                                
+Check certificate and private key are present in secrets:                                             
 
 ```
+# kubectl describe secrets backend-awspca-tls -n awspca-issuer-system   
+
 Name:         backend-awspca-tls
 Namespace:    awspca-issuer-system
 Labels:       <none>
