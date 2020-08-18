@@ -45,6 +45,8 @@ data:
  echo -n "<access key>" | base64
  ```
 
+Apply configuration to create secret: 
+
 ```  
 # kubectl apply -f secret.yaml
 ```
