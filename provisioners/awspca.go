@@ -41,15 +41,15 @@ type AWSPCA struct {
 type AWSPCAProvisioner struct {
 	accesskey string
 	secretkey string
-	arn string
 	region string
+	arn string
 }
 
 func NewProvisioner(accesskey string,
-	secretkey string, arn string, region string) (p *AWSPCAProvisioner) {
+	secretkey string, region string, arn string) (p *AWSPCAProvisioner) {
 
 	return &AWSPCAProvisioner{
-		accesskey: accesskey, secretkey: secretkey,arn: arn, region: region,
+		accesskey: accesskey, secretkey: secretkey, region: region, arn: arn,
 	}
 }
 

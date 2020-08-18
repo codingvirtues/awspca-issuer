@@ -65,16 +65,29 @@ type AWSPCAIssuerList struct {
 	Items           []AWSPCAIssuer `json:"items"`
 }
 
+// SecretKeySelector contains the reference to a secret.
+type SecretKeySelector struct {
+	// The key of the secret to select from. Must be a valid secret key.
+	// +optional
+	Key string `json:"key,omitempty"`
+}
+
 // AWSPCAProvisioner contains the configuration for requesting certificate from AWS
 type AWSPCAProvisioner struct {
-	// Names is the name of the JWK provisioner.
-	AccessKey string `json:"accesskey"`
+	// The name of the secret in the pod's namespace to select from.
+	Name string `json:"name"`
 
-	SecretKey string `json:"secretkey"`
+	// Reference to AWS access key
+	AccessKeyRef SecretKeySelector `json:"accesskeyRef"`
 
-	Region string `json:"region"`
+	// Reference to AWS secret key
+	SecretKeyRef SecretKeySelector `json:"secretkeyRef"`
 
-	Arn string `json:"arn"`
+	// Reference to AWS region
+	RegionRef SecretKeySelector `json:"regionRef"`
+
+	// Reference to private CA ARN
+	ArnRef SecretKeySelector `json:"arnRef"`
 }
 
 // ConditionType represents a AWSPCAIssuer condition type.
