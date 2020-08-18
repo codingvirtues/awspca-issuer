@@ -39,8 +39,6 @@ data:
   arn: <base64 encoding of AWS Private CA ARN>
 ```
 
-Create secret:
-
 ```  
 # kubectl apply -f secret.yaml
 ```
