@@ -39,6 +39,12 @@ data:
   arn: <base64 encoding of AWS Private CA ARN>
 ```
 
+ _Note_: While generating base64 encoding of above fields, ensure there is no newline character included in the encoded string. For example, following command could be used:
+ 
+ ```
+ echo -n "<access key>" | base64
+ ```
+
 ```  
 # kubectl apply -f secret.yaml
 ```
