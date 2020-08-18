@@ -22,7 +22,36 @@ Clone this repo and perform following steps to install controller:
 # make deploy
 ```
 
-Create resource AWSPCAIssuer for the above controller:
+Create secret that holds AWS credentials:
+
+```
+# cat secret.yaml
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: aws-credentials
+  namespace: awspca-issuer-system
+data:
+  accesskey: <base64 encoding of AWS access key>
+  secretkey: <base64 encoding of AWS secret key>
+  region: <base64 encoding of AWS region key>
+  arn: <base64 encoding of AWS Private CA ARN>
+```
+
+ _Note_: While generating base64 encoding of above fields, ensure there is no newline character included in the encoded string. For example, following command could be used:
+ 
+ ```
+ echo -n "<access key>" | base64
+ ```
+
+Apply configuration to create secret: 
+
+```  
+# kubectl apply -f secret.yaml
+```
+
+Create resource AWSPCAIssuer for our controller:
 
 ```
 # cat issuer.yaml
@@ -34,11 +63,18 @@ metadata:
   namespace: awspca-issuer-system
 spec:
   provisioner:
-    accesskey: <aws access key>
-    secretkey: <aws seecret key>
-    region: <region>
-    arn: <ARN of AWS Private CA>
+    name: aws-credentials
+    accesskeyRef:
+      key: accesskey
+    secretkeyRef:
+      key: secretkey
+    regionRef:
+      key: region
+    arnRef:
+      key: arn
 ```
+
+Apply this configuration:
 
 ```
 # kubectl apply -f issuer.yaml
@@ -51,17 +87,28 @@ Labels:       <none>
 Annotations:  API Version:  certmanager.awspca/v1alpha2
 Kind:         AWSPCAIssuer
 ...
+Spec:
+  Provisioner:
+    Accesskey Ref:
+      Key:  accesskey
+    Arn Ref:
+      Key:  arn
+    Name:   aws-credentials
+    Region Ref:
+      Key:  region
+    Secretkey Ref:
+      Key:  secretkey
 Status:
   Conditions:
-    Last Transition Time:  2020-08-08T19:40:26Z
+    Last Transition Time:  2020-08-18T04:34:33Z
     Message:               AWSPCAIssuer verified and ready to sign certificates
     Reason:                Verified
     Status:                True
     Type:                  Ready
 Events:
-  Type    Reason    Age                From                     Message
-  ----    ------    ----               ----                     -------
-  Normal  Verified  18m (x2 over 18m)  awspcaissuer-controller  AWSPCAIssuer verified and ready to sign certificates
+  Type    Reason    Age                    From                     Message
+  ----    ------    ----                   ----                     -------
+  Normal  Verified  8m22s (x2 over 8m22s)  awspcaissuer-controller  AWSPCAIssuer verified and ready to sign certificates
 ```
 
 Now create certificate:
@@ -88,7 +135,7 @@ spec:
     - "127.0.0.1"
   # Duration of the certificate
   duration: 24h
-  # Renew 8 hours before the certificate expiration
+  # Renew 1 hour before the certificate expiration
   renewBefore: 1h
   isCA: false
   # The reference to the step issuer
@@ -124,18 +171,22 @@ Spec:
   Secret Name:   backend-awspca-tls
 Status:
   Conditions:
-    Last Transition Time:  2020-08-08T19:42:49Z
+    Last Transition Time:  2020-08-18T04:34:48Z
     Message:               Certificate is up to date and has not expired
     Reason:                Ready
     Status:                True
     Type:                  Ready
-  Not After:               2020-08-09T19:42:46Z
+  Not After:               2020-08-19T04:34:45Z
+  Not Before:              2020-08-18T03:34:45Z
+  Renewal Time:            2020-08-19T03:34:45Z
+  Revision:                1
 Events:
-  Type    Reason        Age   From          Message
-  ----    ------        ----  ----          -------
-  Normal  GeneratedKey  18m   cert-manager  Generated a new private key
-  Normal  Requested     18m   cert-manager  Created new CertificateRequest resource "backend-awspca-3903941586"
-  Normal  Issued        18m   cert-manager  Certificate issued successfully
+  Type    Reason     Age    From          Message
+  ----    ------     ----   ----          -------
+  Normal  Issuing    6m1s   cert-manager  Issuing certificate as Secret does not exist
+  Normal  Generated  6m     cert-manager  Stored new private key in temporary Secret resource "backend-awspca-7m9sx"
+  Normal  Requested  6m     cert-manager  Created new CertificateRequest resource "backend-awspca-m2gz5"
+  Normal  Issuing    5m51s  cert-manager  The certificate has been successfully issued
 ```
 
 Check certificate and private key are present in secrets:                                             
@@ -159,6 +210,5 @@ Type:  kubernetes.io/tls
 Data
 ====
 tls.key:  xxxx bytes
-ca.crt:   yyyy bytes
-tls.crt:  zzzz bytes
+tls.crt:  yyyy bytes
 ```
